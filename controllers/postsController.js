@@ -10,6 +10,11 @@ const getAllPostsController = async (req, res) => {
 const createPostController = async (req, res) => {
   try {
     const { caption } = req.body;
+
+    if (!caption) {
+      return res.send(error(400, "Caption is required"));
+    }
+
     const owner = req._id;
 
     const user = await User.findById(req._id);
@@ -25,7 +30,7 @@ const createPostController = async (req, res) => {
     console.log("user", user);
     console.log("post", post);
 
-    return res.send(success(201, post));
+    return res.send(success(200, post));
   } catch (e) {
     // console.log("This is my error ", e);
     return res.send(error(500, e.message));
@@ -67,11 +72,11 @@ const updatePostController = async (req, res) => {
     const post = await Post.findById(postId);
 
     if (!post) {
-      return res.send(error(500, "Post not found"));
+      return res.send(error(404, "Post not found"));
     }
 
     if (post.owner.toString() !== curUserId) {
-      return res.send(error(500, "Only owner can update the post"));
+      return res.send(error(403, "Only owner can update the post"));
     }
 
     if (caption) {
@@ -95,11 +100,11 @@ const deletePostController = async (req, res) => {
     const post = await Post.findById(postId);
 
     if (!post) {
-      return res.send(error(500, "POst not found"));
+      return res.send(error(404, "POst not found"));
     }
 
     if (post.owner.toString() !== userId) {
-      return res.send(error(500, "User Not Authorized to Delte"));
+      return res.send(error(403, "User Not Authorized to Delte"));
     }
 
     const postIndex = curUser.posts.indexOf(postId);
